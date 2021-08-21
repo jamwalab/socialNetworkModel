@@ -14,12 +14,14 @@ const userController = {
 
   //get user by id
   getUserbyId({params}, res) {
-    User.find({_id: params.id})
+    User.find({_id: params.userId})
       .populate(
         {
           path: 'thoughts',
           select: ('-__v')
-        },
+        }
+      )
+      .populate(
         {
           path: 'friends',
           select: ('-__v')
@@ -28,6 +30,7 @@ const userController = {
       .select('-__v')
       .then(userData => {
         if(!userData) {
+          //check if user exists
           res.status(400).json({message: 'No user found with this id'});
           return;
         };
@@ -46,5 +49,6 @@ const userController = {
       .catch(err => res.status(400).json(err));
   },
 
-  //
-}
+};
+
+module.exports = userController;
