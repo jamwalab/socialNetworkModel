@@ -29,8 +29,8 @@ const userController = {
       )
       .select('-__v')
       .then(userData => {
+        //check if user exists
         if(!userData) {
-          //check if user exists
           res.status(400).json({message: 'No user found with this id'});
           return;
         };
@@ -49,6 +49,59 @@ const userController = {
       .catch(err => res.status(400).json(err));
   },
 
+  //Update a user
+  updateUser({params, body}, res) {
+    User.findOneAndUpdate(
+      {_id: params.userId},
+      body,
+      {new: true, runValidators: true}
+    )
+    .select('-__v')
+    .then(userData => {
+      console.log(userData)
+      //check if user exists
+      if(!userData) {  
+        res.status(400).json({message: 'No user found with this id'});
+        return;
+      };
+      if(userData.username) {
+        userData.thoughts.forEach(thought => {
+          Thought.findOneAndUpdate(
+            {_id: thought},
+            {username: userData.username}
+          )
+          .catch(err => res.status(400).json(err));
+        });
+      }
+      res.json(userData);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(400).json(err);
+    })
+  },
+
+  //Delete user
+  deleteUser({params}, res) {
+    User.find({_id: params.userId})
+      .then(userData => {
+        //check if user exists
+        if(!userData) {  
+          res.status(400).json({message: 'No user found with this id'});
+          return;
+        };
+        console.log(userData)
+        userData[0].thoughts.forEach(thought => {
+          Thought.findOneAndDelete({_id: thought})
+        });
+        return userData;
+      })
+      .then(userData => {
+        User.findOneAndDelete({_id: params.userId})
+          .then(response => res.json({message: 'User deleted'}))
+      })
+      .catch(err => res.status(400).json(err));
+  }
 };
 
 module.exports = userController;
