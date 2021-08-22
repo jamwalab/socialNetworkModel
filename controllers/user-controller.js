@@ -125,21 +125,21 @@ const userController = {
   //Delete user
   deleteUser({params}, res) {
     User.find({_id: params.userId})
-      .then(userData => {
+      .then(async (userData) => {
         //check if user exists
         if(!userData) {  
           res.status(400).json({message: 'No user found with this id'});
           return;
         };
-        console.log(userData)
-        userData[0].thoughts.forEach(thought => {
+        await userData[0].thoughts.forEach(thought => {
           Thought.findOneAndDelete({_id: thought})
+            .then(res => console.log({message: 'Thoughts by the user deleted!!'}));
         });
         return userData;
       })
       .then(userData => {
         User.findOneAndDelete({_id: params.userId})
-          .then(response => res.json({message: 'User deleted'}))
+          .then(response => res.json({message: 'User deleted!!'}))
       })
       .catch(err => res.status(400).json(err));
   }
