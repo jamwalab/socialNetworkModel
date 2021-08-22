@@ -49,6 +49,48 @@ const userController = {
       .catch(err => res.status(400).json(err));
   },
 
+  //Add a new friend
+  addFriend({params}, res) {
+    User.findOneAndUpdate(
+      {_id: params.userId},
+      {$push: {friends: params.friendId}},
+      {new: true, runValidators: true}
+    )
+    .then(userData => {
+      //check if user exists
+      if(!userData) {  
+        res.status(400).json({message: 'No user found with this id'});
+        return;
+      };
+      res.json(userData);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(400).json(err);
+    })
+  },
+
+  //Delete a friend
+  deleteFriend({params}, res) {
+    User.findOneAndUpdate(
+      {_id: params.userId},
+      {$pull: {friends: params.friendId}},
+      {new: true, runValidators: true}
+    )
+    .then(userData => {
+      //check if user exists
+      if(!userData) {  
+        res.status(400).json({message: 'No user found with this id'});
+        return;
+      };
+      res.json(userData);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(400).json(err);
+    })
+  },
+
   //Update a user
   updateUser({params, body}, res) {
     User.findOneAndUpdate(
@@ -58,7 +100,6 @@ const userController = {
     )
     .select('-__v')
     .then(userData => {
-      console.log(userData)
       //check if user exists
       if(!userData) {  
         res.status(400).json({message: 'No user found with this id'});
