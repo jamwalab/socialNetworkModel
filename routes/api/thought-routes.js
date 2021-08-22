@@ -1,5 +1,6 @@
 const router = require('express').Router();
 
+//Get all controller functions for thought model
 const {
   getAllThoughts,
   getThoughtsbyId,
